@@ -7,6 +7,11 @@ SHELL := /bin/bash
 run: 
 	go run app/services/sales-api/main.go | go run app/tooling/logfmt/main.go
 
+live:
+	curl -il http://localhost:3000/liveness
+
+ready:
+	curl -il http://localhost:3000/readiness
 
 # ==============================================================================
 # Building containers

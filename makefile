@@ -1,8 +1,11 @@
 SHELL := /bin/bash
 
+# Access metrics directly (4000) or through the sidecar (3001)
+# go install github.com/divan/expvarmon@latest
+# expvarmon -ports=":4000" -vars="build,requests,goroutines,errors,panics,mem:memstats.Alloc"
 
 run: 
-	go run app/services/sales-api/main.go
+	go run app/services/sales-api/main.go | go run app/tooling/logfmt/main.go
 
 
 # ==============================================================================
@@ -45,7 +48,7 @@ kind-apply:
 	kustomize build zarf/k8s/kind/sales-pod | kubectl apply -f -
 
 kind-logs-sales:
-	kubectl logs -l app=sales --all-containers=true -f --tail=100
+	kubectl logs -l app=sales --all-containers=true -f --tail=100 | go run app/tooling/logfmt/main.go
 
 kind-status-sales:
 	kubectl get pods -o wide --watch --namespace=sales-system

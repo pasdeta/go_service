@@ -25,3 +25,13 @@ spec:
             cpu: "2000m" # Up to 2 full cores
           requests:
             cpu: "1000m" # Use 1 full cores
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sales-service
+  namespace: sales-system
+spec:
+  selector:
+    app: sales
+  type: ClusterIP

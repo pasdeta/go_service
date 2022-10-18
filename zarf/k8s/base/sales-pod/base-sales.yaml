@@ -22,3 +22,19 @@ spec:
       # sales-api container configuration
       - name: sales-api
         image: sales-api-image
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sales-service
+  namespace: sales-system
+spec:
+  selector:
+    app: sales
+  ports:
+  - name: sales-api
+    port: 3000
+    targetPort: sales-api
+  - name: sales-api-debug
+    port: 4000
+    targetPort: sales-api-debug

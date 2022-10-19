@@ -10,6 +10,7 @@ import (
 	"github.com/ardanlabs/service/app/services/sales-api/handlers/debug/checkgrp"
 	"github.com/jmoiron/sqlx"
 	"github.com/pasdeta/go_service/app/services/sales-api/handlers/probegrp"
+	"github.com/pasdeta/go_service/business/web/auth"
 	"github.com/pasdeta/go_service/business/web/v1/mid"
 	"github.com/pasdeta/go_service/foundation/web"
 	"go.uber.org/zap"
@@ -32,7 +33,7 @@ type APIMuxConfig struct {
 	Shutdown chan os.Signal
 	Log      *zap.SugaredLogger
 	Build    string
-	// Auth     *auth.Auth
+	Auth     *auth.Auth
 	// DB       *sqlx.DB
 	// Tracer   trace.Tracer
 }
@@ -40,6 +41,9 @@ type APIMuxConfig struct {
 // APIMux constructs a http.Handler with all application routes defined.
 func APIMux(cfg APIMuxConfig) *web.App {
 	app := web.NewApp(cfg.Shutdown, mid.Logger(cfg.Log), mid.Errors(cfg.Log), mid.Metrics(), mid.Panics())
+
+	authen := mid.Authenticate(cfg.Auth)
+	admin := mid.Authorize(auth.RoleAdmin)
 
 	probegrp := probegrp.Handlers{
 		Log:   cfg.Log,
@@ -51,6 +55,8 @@ func APIMux(cfg APIMuxConfig) *web.App {
 	app.Handle(http.MethodGet, "/test400", probegrp.TestError400)
 	app.Handle(http.MethodGet, "/test500", probegrp.TestError500)
 	app.Handle(http.MethodGet, "/testpanic", probegrp.TestPanic)
+
+	app.Handle(http.MethodGet, "/testauth", probegrp.TestAuth, authen, admin)
 
 	return app
 }

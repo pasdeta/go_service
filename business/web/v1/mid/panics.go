@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"runtime/debug"
 
+	"github.com/pasdeta/go_service/business/web/metrics"
 	"github.com/pasdeta/go_service/foundation/web"
 )
 
@@ -22,6 +23,8 @@ func Panics() web.Middleware {
 					// Stack trace will be provided.
 					trace := debug.Stack()
 					err = fmt.Errorf("PANIC [%v] TRACE[%s]", rec, string(trace))
+
+					metrics.AddPanics(ctx)
 				}
 			}()
 

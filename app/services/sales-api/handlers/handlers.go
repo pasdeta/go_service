@@ -31,6 +31,7 @@ func WithCORS(origin string) func(opts *Options) {
 type APIMuxConfig struct {
 	Shutdown chan os.Signal
 	Log      *zap.SugaredLogger
+	Build    string
 	// Auth     *auth.Auth
 	// DB       *sqlx.DB
 	// Tracer   trace.Tracer
@@ -38,13 +39,18 @@ type APIMuxConfig struct {
 
 // APIMux constructs a http.Handler with all application routes defined.
 func APIMux(cfg APIMuxConfig) *web.App {
-	app := web.NewApp(cfg.Shutdown, mid.Logger(cfg.Log), mid.Errors(cfg.Log))
+	app := web.NewApp(cfg.Shutdown, mid.Logger(cfg.Log), mid.Errors(cfg.Log), mid.Panics())
 
 	probegrp := probegrp.Handlers{
-		Log: cfg.Log,
+		Log:   cfg.Log,
+		Build: cfg.Build,
 	}
 	app.Handle(http.MethodGet, "/liveness", probegrp.Liveness)
 	app.Handle(http.MethodGet, "/readiness", probegrp.Readiness)
+
+	app.Handle(http.MethodGet, "/test400", probegrp.TestError400)
+	app.Handle(http.MethodGet, "/test500", probegrp.TestError500)
+	app.Handle(http.MethodGet, "/testpanic", probegrp.TestPanic)
 
 	return app
 }

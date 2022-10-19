@@ -133,6 +133,7 @@ func run(log *zap.SugaredLogger) error {
 	apiMux := handlers.APIMux(handlers.APIMuxConfig{
 		Shutdown: shutdown,
 		Log:      log,
+		Build:    build,
 	})
 
 	// Construct a server to service the requests against the mux.

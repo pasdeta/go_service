@@ -13,6 +13,16 @@ live:
 ready:
 	curl -il http://localhost:3000/readiness
 
+test400:
+	curl -il http://localhost:3000/test400
+
+test500:
+	curl -il http://localhost:3000/test500
+
+testpanic:
+	curl -il http://localhost:3000/testpanic
+
+
 # ==============================================================================
 # Building containers
 

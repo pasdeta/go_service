@@ -13,6 +13,10 @@ SHELL := /bin/bash
 # openssl rsa -pubout -in private.pem -out public.pem
 # ./sales-admin genkey
 
+# Running pgcli client for database.
+# brew install pgcli
+# pgcli postgresql://postgres:postgres@localhost
+
 scratch:
 	go run app/tooling/scratch/main.go
 

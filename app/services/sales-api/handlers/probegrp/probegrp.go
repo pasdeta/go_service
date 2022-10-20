@@ -6,7 +6,10 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"time"
 
+	"github.com/jmoiron/sqlx"
+	"github.com/pasdeta/go_service/business/sys/database"
 	v1 "github.com/pasdeta/go_service/business/web/v1"
 	"github.com/pasdeta/go_service/foundation/web"
 	"go.uber.org/zap"
@@ -15,6 +18,7 @@ import (
 type Handlers struct {
 	Log   *zap.SugaredLogger
 	Build string
+	DB    *sqlx.DB
 }
 
 func (h Handlers) TestAuth(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
@@ -105,11 +109,21 @@ func (h Handlers) Liveness(ctx context.Context, w http.ResponseWriter, r *http.R
 }
 
 func (h Handlers) Readiness(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	status := struct {
-		Status string
-	}{
-		Status: "OK",
+	ctx, cancel := context.WithTimeout(ctx, time.Second)
+	defer cancel()
+
+	status := "ok"
+	statusCode := http.StatusOK
+	if err := database.StatusCheck(ctx, h.DB); err != nil {
+		status = "db not ready"
+		statusCode = http.StatusInternalServerError
 	}
 
-	return web.Respond(ctx, w, status, http.StatusOK)
+	data := struct {
+		Status string
+	}{
+		Status: status,
+	}
+
+	return web.Respond(ctx, w, data, statusCode)
 }

@@ -34,7 +34,7 @@ type APIMuxConfig struct {
 	Log      *zap.SugaredLogger
 	Build    string
 	Auth     *auth.Auth
-	// DB       *sqlx.DB
+	DB       *sqlx.DB
 	// Tracer   trace.Tracer
 }
 
@@ -48,6 +48,7 @@ func APIMux(cfg APIMuxConfig) *web.App {
 	probegrp := probegrp.Handlers{
 		Log:   cfg.Log,
 		Build: cfg.Build,
+		DB:    cfg.DB,
 	}
 	app.Handle(http.MethodGet, "/liveness", probegrp.Liveness)
 	app.Handle(http.MethodGet, "/readiness", probegrp.Readiness)
